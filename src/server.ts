@@ -10,6 +10,7 @@ import modelTokensRouter from "./api/modelTokens";
 import toolSecretsRouter from "./api/toolSecrets";
 import chatsRouter from "./api/chats";
 import aiRouter from "./api/ai";
+import toolsRouter from "./api/tools";
 
 const app = express();
 
@@ -46,6 +47,7 @@ app.use("/api/model-tokens", modelTokensRouter);
 app.use("/api/tool-secrets", toolSecretsRouter);
 app.use("/api/chats", chatsRouter);
 app.use("/api", aiRouter);
+app.use("/api/tools", toolsRouter);
 
 app.listen(env.port, () => {
   console.log(

@@ -19,7 +19,12 @@ import {
   getChatMessages,
 } from "../services/messageService";
 
+import {
+  createMessageContext,
+} from "../services/contextEmbeddingOrchestrator";
+
 import { generateAIChatTitle } from "../services/aiChatService";
+
 
 const router = Router();
 
@@ -402,6 +407,13 @@ router.post(
       const message = await addMessage(
         chatId,
         role,
+        content,
+      );
+
+      await createMessageContext(
+        userId,
+        chatId,
+        message.id,
         content,
       );
 

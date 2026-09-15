@@ -3,7 +3,17 @@ import {
   setCachedCredential,
 } from "./credentialCache";
 import { getModelToken } from "./modelTokenService";
-import {generateChatTitle, sendToAIServer,} from "./aiServerService";
+import {
+  getUserToolConnections,
+} from "./toolConnectionService";
+import {
+  generateChatTitle,
+  sendToAIServer,
+} from "./aiServerService";
+import {
+  retrieveContext,
+} from "./contextRetrievalService";
+
 
 async function getProviderCredential(
   userId: string,
@@ -42,12 +52,36 @@ async function getProviderCredential(
   return apiKey;
 }
 
+async function getToolCredentials(
+  userId: string,
+) {
+  const connections =
+    await getUserToolConnections(userId);
+
+  const credentials: Record<
+    string,
+    Record<string, unknown>
+  > = {};
+
+  for (const connection of connections) {
+    if (!connection.providerId) {
+      continue;
+    }
+
+    credentials[connection.providerId] =
+      connection.credentials;
+  }
+
+  return credentials;
+}
+
 export async function sendAIChat(
   userId: string,
   message: string,
   provider?: string,
   model?: string,
   tools?: string[],
+  chatId?: string,
 ) {
   const selectedProvider = provider ?? "ollama";
 
@@ -56,16 +90,28 @@ export async function sendAIChat(
     selectedProvider,
   );
 
+  const toolCredentials =
+    await getToolCredentials(userId);
+
+  console.log("AI CHAT chatId:", chatId);
+  console.log("AI CHAT message:", message);
+
+  const context = chatId
+    ? await retrieveContext(userId, chatId, message)
+    : [];
+
+  console.log("AI CHAT context count:", context.length);
+
   return sendToAIServer({
     userId,
     message,
     provider: selectedProvider,
     model,
-    tools,
     apiKey: apiKey ?? undefined,
+    toolCredentials,
+    context,
   });
 }
-
 
 export async function generateAIChatTitle(
   userId: string,

@@ -10,7 +10,7 @@ router.post(
   requireAuth,
   async (req: AuthenticatedRequest, res) => {
     try {
-      const { message, provider, model, tools } = req.body;
+      const { message, chatId, provider, model, tools } = req.body;
 
       if (!message || typeof message !== "string") {
         return res.status(400).json({
@@ -24,6 +24,7 @@ router.post(
         provider,
         model,
         tools,
+        chatId,
       );
 
       return res.json(result);
